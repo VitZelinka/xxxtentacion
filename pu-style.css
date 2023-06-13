@@ -1,0 +1,8 @@
+li {
+    display: flex;
+}
+
+li p {
+    margin: 0px;
+    margin-right: 2px;
+}

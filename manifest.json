@@ -1,0 +1,25 @@
+{
+
+    "manifest_version": 3,
+    "name": "XXXTention",
+    "version": "0.2.69",
+
+    "description": "Helps my competition update their webpage.",
+
+    "options_page": "options.html",
+
+    "icons": {
+    },
+
+    "permissions": ["storage", "tabs", "activeTab", "scripting"],
+    "host_permissions": ["<all_urls>"],
+    
+    "background": {
+        "service_worker": "backend.js"
+    },
+
+    "action": {
+        "default_popup": "popup.html"
+    }
+
+}
