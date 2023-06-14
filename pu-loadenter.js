@@ -13,6 +13,9 @@ let p5El = document.getElementById("p5").getElementsByTagName("p")[1];
 let priceTempEl = document.getElementById("sablonacen").getElementsByTagName("p")[1];
 let deliveryTempEl = document.getElementById("sablonadopravy").getElementsByTagName("p")[1];
 let avai = document.getElementById("dostupnost").getElementsByTagName("p")[1];
+let params = document.getElementById("parametry").getElementsByTagName("p")[1];
+let popis = document.getElementById("popis").getElementsByTagName("p")[1];
+
 
 let loadButton = document.getElementById("loadButton");
 let clearButton = document.getElementById("clearButton");
@@ -87,4 +90,6 @@ function UpdateData() {
     chrome.storage.local.get(["priceTempl"], (data) => {priceTempEl.innerHTML = data.priceTempl});
     chrome.storage.local.get(["deliveryTempl"], (data) => {deliveryTempEl.innerHTML = data.deliveryTempl});
     chrome.storage.local.get(["avai"], (data) => {avai.innerHTML = data.avai});
+    chrome.storage.local.get(["params"], (data) => {params.innerHTML = data.params});
+    chrome.storage.local.get(["popis"], (data) => {popis.innerHTML = data.popis});
 }

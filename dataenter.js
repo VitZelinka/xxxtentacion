@@ -106,6 +106,18 @@ function EnterData() {
     });
     */
 
+    chrome.storage.local.get(["params"], (data) => {
+        if (data.params === "notloaded" || typeof data.params !== "string") return;
+        let curElem = document.getElementsByName("parametry")[0];
+        curElem.value = data.params;
+    });
+
+    chrome.storage.local.get(["popis"], (data) => {
+        if (data.popis === "notloaded" || typeof data.popis !== "string") return;
+        let curElem = document.getElementsByName("popis")[0];
+        curElem.value = data.popis;
+    });
+
     console.log("data entered");
 }
 

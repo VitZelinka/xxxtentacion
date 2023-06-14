@@ -94,6 +94,13 @@ function LoadData() {
 
     curElem = document.getElementsByName("dostupnost")[0].value;
     chrome.storage.local.set({avai: curElem});
+
+    curElem = document.getElementById("parametry").innerHTML;
+    chrome.storage.local.set({params: curElem});
+
+    curElem = document.getElementById("popis").innerHTML;
+    console.log(curElem);
+    chrome.storage.local.set({popis: curElem});
 }
 
 function ClearData() {
@@ -111,4 +118,6 @@ function ClearData() {
     chrome.storage.local.set({priceTempl: curElem});
     chrome.storage.local.set({deliveryTempl: curElem});
     chrome.storage.local.set({avai: curElem});
+    chrome.storage.local.set({params: curElem});
+    chrome.storage.local.set({popis: curElem});
 }
