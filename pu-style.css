@@ -1,8 +1,25 @@
 li {
     display: flex;
+    width: max-content;
 }
 
 li p {
     margin: 0px;
     margin-right: 2px;
+    max-width: 300px;
+}
+
+body {
+    display: flex;
+    width: min-content;
+    flex-direction: column;
+}
+
+input {
+    width: 30px;
+}
+
+label {
+    margin-left: 5px;
+    margin-right: 3px;
 }
