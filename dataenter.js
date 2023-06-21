@@ -121,6 +121,7 @@ function EnterData() {
     console.log("data entered");
 }
 
+// this function is both here and in datagrabber.js :D
 function ClearData() {
     curElem = "notloaded";
     chrome.storage.local.set({code: curElem});
@@ -136,4 +137,6 @@ function ClearData() {
     chrome.storage.local.set({priceTempl: curElem});
     chrome.storage.local.set({deliveryTempl: curElem});
     chrome.storage.local.set({avai: curElem});
+
+    chrome.storage.local.set({inc_data: {p1_inc: 0, p2_inc: 0, p3_inc: 0, p4_inc: 0, p5_inc: 0}});
 }

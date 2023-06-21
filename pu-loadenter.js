@@ -117,9 +117,10 @@ function UpdateData() {
     chrome.storage.local.get(["params"], (data) => {params.getElementsByTagName("p")[1].innerHTML = data.params});
     chrome.storage.local.get(["popis"], (data) => {popis.getElementsByTagName("p")[1].innerHTML = data.popis});
 
-    chrome.storage.local.get(["inc_data"], (data) => {p1El.getElementsByTagName("input")[0].value = data.inc_data.p1_inc});
-    chrome.storage.local.get(["inc_data"], (data) => {p2El.getElementsByTagName("input")[0].value = data.inc_data.p2_inc});
-    chrome.storage.local.get(["inc_data"], (data) => {p3El.getElementsByTagName("input")[0].value = data.inc_data.p3_inc});
-    chrome.storage.local.get(["inc_data"], (data) => {p4El.getElementsByTagName("input")[0].value = data.inc_data.p4_inc});
-    chrome.storage.local.get(["inc_data"], (data) => {p5El.getElementsByTagName("input")[0].value = data.inc_data.p5_inc});
+    chrome.storage.local.get(["inc_data"], (data) => {p1El.getElementsByTagName("input")[0].value = data.inc_data.p1_inc;
+                                                      p2El.getElementsByTagName("input")[0].value = data.inc_data.p2_inc;
+                                                      p3El.getElementsByTagName("input")[0].value = data.inc_data.p3_inc;
+                                                      p4El.getElementsByTagName("input")[0].value = data.inc_data.p4_inc;
+                                                      p5El.getElementsByTagName("input")[0].value = data.inc_data.p5_inc;
+                                                      console.log(data)});
 }
