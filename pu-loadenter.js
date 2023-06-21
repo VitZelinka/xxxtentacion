@@ -74,13 +74,25 @@ function LoadData() {
 
 
 function ClearData() {
-    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, {toDataGrabber: "clear_data"}, (response) => {
-            if (response.toPopupDataGrab === "data_cleared") {
-                UpdateData();
-            }
-        });
-    });
+    curElem = "notloaded";
+    chrome.storage.local.set({code: curElem});
+    chrome.storage.local.set({g_name_p: curElem});
+    chrome.storage.local.set({g_name_pn: curElem});
+    chrome.storage.local.set({distributor: curElem});
+    chrome.storage.local.set({priority: curElem});
+    chrome.storage.local.set({p1: curElem});
+    chrome.storage.local.set({p2: curElem});
+    chrome.storage.local.set({p3: curElem});
+    chrome.storage.local.set({p4: curElem});
+    chrome.storage.local.set({p5: curElem});
+    chrome.storage.local.set({priceTempl: curElem});
+    chrome.storage.local.set({deliveryTempl: curElem});
+    chrome.storage.local.set({avai: curElem});
+    chrome.storage.local.set({params: curElem});
+    chrome.storage.local.set({popis: curElem});
+
+    chrome.storage.local.set({inc_data: {p1_inc: 0, p2_inc: 0, p3_inc: 0, p4_inc: 0, p5_inc: 0}});
+    UpdateData();
 }
 
 function EnterData() {
@@ -121,6 +133,5 @@ function UpdateData() {
                                                       p2El.getElementsByTagName("input")[0].value = data.inc_data.p2_inc;
                                                       p3El.getElementsByTagName("input")[0].value = data.inc_data.p3_inc;
                                                       p4El.getElementsByTagName("input")[0].value = data.inc_data.p4_inc;
-                                                      p5El.getElementsByTagName("input")[0].value = data.inc_data.p5_inc;
-                                                      console.log(data)});
+                                                      p5El.getElementsByTagName("input")[0].value = data.inc_data.p5_inc;});
 }
