@@ -60,7 +60,11 @@ p3El.getElementsByTagName("input")[0].addEventListener("blur", () => SaveIncreme
 p4El.getElementsByTagName("input")[0].addEventListener("blur", () => SaveIncrementInput("p4_inc", p4El.getElementsByTagName("input")[0].value));
 p5El.getElementsByTagName("input")[0].addEventListener("blur", () => SaveIncrementInput("p5_inc", p5El.getElementsByTagName("input")[0].value));
 
-
+p1El.getElementsByTagName("input")[1].addEventListener("click", () => SaveIncrementInput("p1_en", p1El.getElementsByTagName("input")[1].checked));
+p2El.getElementsByTagName("input")[1].addEventListener("click", () => SaveIncrementInput("p2_en", p2El.getElementsByTagName("input")[1].checked));
+p3El.getElementsByTagName("input")[1].addEventListener("click", () => SaveIncrementInput("p3_en", p3El.getElementsByTagName("input")[1].checked));
+p4El.getElementsByTagName("input")[1].addEventListener("click", () => SaveIncrementInput("p4_en", p4El.getElementsByTagName("input")[1].checked));
+p5El.getElementsByTagName("input")[1].addEventListener("click", () => SaveIncrementInput("p5_en", p5El.getElementsByTagName("input")[1].checked));
 
 function LoadData() {
     chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
@@ -133,5 +137,12 @@ function UpdateData() {
                                                       p2El.getElementsByTagName("input")[0].value = data.inc_data.p2_inc;
                                                       p3El.getElementsByTagName("input")[0].value = data.inc_data.p3_inc;
                                                       p4El.getElementsByTagName("input")[0].value = data.inc_data.p4_inc;
-                                                      p5El.getElementsByTagName("input")[0].value = data.inc_data.p5_inc;});
+                                                      p5El.getElementsByTagName("input")[0].value = data.inc_data.p5_inc;
+
+                                                      p1El.getElementsByTagName("input")[1].checked = data.inc_data.p1_en;
+                                                      p2El.getElementsByTagName("input")[1].checked = data.inc_data.p2_en;
+                                                      p3El.getElementsByTagName("input")[1].checked = data.inc_data.p3_en;
+                                                      p4El.getElementsByTagName("input")[1].checked = data.inc_data.p4_en;
+                                                      p5El.getElementsByTagName("input")[1].checked = data.inc_data.p5_en;
+                                                    });
 }
