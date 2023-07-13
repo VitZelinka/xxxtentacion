@@ -1,8 +1,10 @@
 
 let dataGrabGate = true;
 let dataEnterGate = true;
+let listInjectGate = true;
 let dataGrabTabID = null;
 let dataEnterTabID = null;
+let listInjectTabID = null;
 
 async function GetCurrentTabURL() {
     let queryOptions = { active: true, lastFocusedWindow: true };
@@ -47,7 +49,7 @@ function OnTabChange(tab) {
                         let storedURL = new URL(element);
                         if (url.host + url.pathname === storedURL.host + storedURL.pathname) {
                             chrome.storage.local.set({activeSite: "ListGoods"});
-                            chrome.action.setPopup({popup: "./popup.html"});
+                            chrome.action.setPopup({popup: "./pu-list.html"});
                             console.log("Kapitola website!!");
                             shouldReturn = true;
                         }
@@ -90,6 +92,16 @@ function InjectContentScript(tabId) {
                 }
                 break;
             case "ListGoods":
+                if (listInjectGate == true) {
+                    listInjectGate = false;
+                    listInjectTabID = tabId;
+                    chrome.scripting.executeScript({
+                        target: { tabId: tabId },
+                        files: ['listinject.js']
+                    });
+                } else {
+                    listInjectGate = true;
+                }
                 break;
             default:
                 break;
