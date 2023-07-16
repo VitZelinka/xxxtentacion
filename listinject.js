@@ -7,7 +7,7 @@ chrome.runtime.onMessage.addListener(
         if (request.edit === "startEdit") {
             console.log("Got message!");
             ParseNewData();
-            DoTrolling();
+            setTimeout(()=>{DoTrolling()}, 25);
         }
     }
 );
@@ -40,34 +40,54 @@ async function DoTrolling() {
     let dost_a = (await chrome.storage.local.get(["dost_p"])).dost_p;
     let cena_a = (await chrome.storage.local.get(["cena_p"])).cena_p;
     let prio_a = (await chrome.storage.local.get(["prio_p"])).prio_p;
-    console.log(id_a.length);
+    
     if (id_a.length < 1) {return;}
+
     let row_elem = FindByID(id_a[0]);
     if (!row_elem) {return;}
-
-    let text_field = row_elem.getElementsByClassName("w90 center")[0].getElementsByTagName("input")[0];
-    text_field.value = kod_a[0];
-
-    text_field = row_elem.getElementsByClassName("w40 center")[0].getElementsByTagName("input")[0];
-    text_field.value = dost_a[0];
-
-    text_field = row_elem.getElementsByClassName("w40 center")[1].getElementsByTagName("input")[0];
-    text_field.value = cena_a[0];
-
-    text_field = row_elem.getElementsByClassName("w75 center")[0].getElementsByTagName("input")[0];
-    text_field.value = prio_a[0];
-
+    
     id_a.splice(0, 1);
     await chrome.storage.local.set({id_p: id_a});
-    kod_a.splice(0, 1);
-    await chrome.storage.local.set({kod_p: kod_a});
-    dost_a.splice(0, 1);
-    await chrome.storage.local.set({dost_p: dost_a});
-    cena_a.splice(0, 1);
-    await chrome.storage.local.set({cena_p: cena_a});
-    prio_a.splice(0, 1);
-    await chrome.storage.local.set({prio_p: prio_a});
+
+    kod_a = removeWhitespaceElements(kod_a);
+    if (kod_a.length > 0) {
+        let text_field = row_elem.getElementsByClassName("w90 center")[0].getElementsByTagName("input")[0];
+        text_field.value = kod_a[0];
+        kod_a.splice(0, 1);
+        await chrome.storage.local.set({kod_p: kod_a});
+    }
+
+    dost_a = removeWhitespaceElements(dost_a);
+    if (dost_a.length > 0) {
+        text_field = row_elem.getElementsByClassName("w40 center")[0].getElementsByTagName("input")[0];
+        text_field.value = dost_a[0];
+        dost_a.splice(0, 1);
+        await chrome.storage.local.set({dost_p: dost_a});
+    }
+
+    cena_a = removeWhitespaceElements(cena_a);
+    if (cena_a.length > 0) {
+        text_field = row_elem.getElementsByClassName("w40 center")[1].getElementsByTagName("input")[0];
+        text_field.value = cena_a[0];
+        cena_a.splice(0, 1);
+        await chrome.storage.local.set({cena_p: cena_a});
+    }
+
+    prio_a = removeWhitespaceElements(prio_a);
+    if (prio_a.length > 0) {
+        console.log(prio_a);
+        text_field = row_elem.getElementsByClassName("w75 center")[0].getElementsByTagName("input")[0];
+        text_field.value = prio_a[0];
+        prio_a.splice(0, 1);
+        await chrome.storage.local.set({prio_p: prio_a});
+    }
+
 
     let submit_button = row_elem.getElementsByClassName("w75 center")[0].getElementsByTagName("input")[1];
     submit_button.click(); // YIPPPEEEEEEE :steamhappy:
+}
+
+
+function removeWhitespaceElements(arr) {
+    return arr.filter(element => element.trim() !== '');
 }
