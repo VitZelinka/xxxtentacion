@@ -6,12 +6,13 @@ DoTrolling();
 DoNuking();
 
 chrome.runtime.onMessage.addListener(
-    function(request, sender, sendResponse) {
+    async function(request, sender, sendResponse) {
         if (request.edit === "startEdit") {
             console.log("Got message!");
             ParseNewData();
             setTimeout(()=>{DoTrolling()}, 25);
         } else if (request.edit === "startEditExcel") {
+            await chrome.storage.local.set({miss_ids: ""});
             StoreAllIDs();
             DoNuking();
         }
@@ -41,12 +42,16 @@ function ParseNewData() {
 
 async function StoreAllIDs() {
     let id_array = [];
+    let str_out = "";
     let ids = document.getElementsByClassName("w35 center");
     for (let i = 0; i < ids.length; i++) {
         const row_id = ids[i].childNodes[0].innerHTML;
         id_array.push(row_id);
+        str_out += (row_id + '\n');
     }
     await chrome.storage.local.set({rem_ids: id_array});
+    await chrome.storage.local.set({rem_id_n: id_array.length});
+    console.log(str_out);
     return id_array;
 }
 
@@ -124,15 +129,22 @@ async function DoNuking() {
     if (ids.length < 1) {return;}
 
     let row_elem = FindByID(ids[0]);
-    if (!row_elem) {alert("ERROR-missing ID on page that should exist");return;}
+    if (!row_elem) {await chrome.storage.local.set({rem_ids: []});alert("ERROR-missing ID on page that should exist");return;}
 
     let found_id = [false, ids[0]];
     const n_rows = XLSX.utils.decode_range(ws["!ref"]).e.r + 1;
 
     for (let i = 0; i < n_rows; i++) {
+        if (ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(id_col), r:i})] == undefined) {
+            await chrome.storage.local.set({rem_ids: []});
+            alert("ERROR: ID column in excel is probably empty.")
+            return;
+        }
+
         if (ids[0] == ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(id_col), r:i})].w) {
             found_id = [true, -1];
-            
+            await chrome.storage.local.get(["rem_id_n"], (data) =>{chrome.storage.local.set({rem_id_n: data.rem_id_n-1})});
+
             let text_field = row_elem.getElementsByClassName("w90 center")[0].getElementsByTagName("input")[0];
             let new_value = ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(kod_col), r:i})];
             if (new_value != undefined) {text_field.value = new_value.w;}
@@ -154,9 +166,16 @@ async function DoNuking() {
     ids.splice(0, 1);
     await chrome.storage.local.set({rem_ids: ids});
 
-    console.log(found_id);
-    if (!found_id[0]) {let str="Not found in excel ID: "+found_id[1];alert(str);return;}
+    if (!found_id[0]) {
+        chrome.storage.local.get(["miss_ids"], (data) => {chrome.storage.local.set({miss_ids: data.miss_ids+found_id[1]+'\n'});});
+    }
+    
+    let not_done_n = (await chrome.storage.local.get(["rem_id_n"])).rem_id_n;
+    if (ids.length == 0 && not_done_n != 0) {
+        chrome.storage.local.get(["miss_ids"], (data) => {alert(not_done_n+" IDs not found.\n"+data.miss_ids)});
+    }
+
 
     let submit_button = row_elem.getElementsByClassName("w75 center")[0].getElementsByTagName("input")[1];
-    submit_button.click(); // YIPPPEEEEEEE :steamhappy:
+    //submit_button.click(); // YIPPPEEEEEEE :steamhappy:
 }
