@@ -12,6 +12,40 @@ bAddNew.onclick = () => {AddURLToStorage("new", document.getElementById("addNew"
 bAddEdit.onclick = () => {AddURLToStorage("edit", document.getElementById("addEdit").value)};
 bAddList.onclick = () => {AddURLToStorage("list", document.getElementById("addList").value)};
 
+
+let saveExcelButton = document.getElementById("saveExcel");
+saveExcelButton.onclick = SaveExcelOptions;
+
+let inputSheet = document.getElementById("sheetName");
+let inputId = document.getElementById("idCol");
+let inputKod = document.getElementById("kodCol");
+let inputDost = document.getElementById("dostCol");
+let inputCena = document.getElementById("cenaCol");
+let inputPrio = document.getElementById("prioCol");
+
+function SaveExcelOptions() {
+    let data2save = {
+        sheet: inputSheet.value,
+        id: inputId.value,
+        kod: inputKod.value,
+        dost: inputDost.value,
+        cena: inputCena.value,
+        prio: inputPrio.value
+    }
+    chrome.storage.sync.set({excelOptions: data2save});
+}
+
+async function UpdateExcelInputs() {
+    let opts = (await chrome.storage.sync.get(["excelOptions"])).excelOptions;
+    inputSheet.value = opts.sheet;
+    inputId.value = opts.id;
+    inputKod.value = opts.kod;
+    inputDost.value = opts.dost;
+    inputCena.value = opts.cena;
+    inputPrio.value = opts.prio; 
+}
+
+UpdateExcelInputs();
 UpdateURLLists();
 
 function AddURLToStorage(urlType, urlString) {
@@ -111,6 +145,7 @@ function UpdateURLLists() {
         });
     });
 }
+
 
 
 //chrome.storage.sync.set()

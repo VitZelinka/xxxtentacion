@@ -97,6 +97,10 @@ function InjectContentScript(tabId) {
                     listInjectTabID = tabId;
                     chrome.scripting.executeScript({
                         target: { tabId: tabId },
+                        files: ['cdn.sheetjs.com_xlsx-0.20.0_package_dist_xlsx.full.min.js']
+                    });
+                    chrome.scripting.executeScript({
+                        target: { tabId: tabId },
                         files: ['listinject.js']
                     });
                 } else {

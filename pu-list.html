@@ -2,7 +2,7 @@
 <html>
 
 <head>
-
+    <script lang="javascript" src="cdn.sheetjs.com_xlsx-0.20.0_package_dist_xlsx.full.min.js"></script>
 </head>
 
 <body>
@@ -17,6 +17,11 @@
     <label for="prio">Prio: </label>
     <input name="prio">
     <button id="start">Initiate destruction</button>
+    <br>
+    <br>
+    <input type="file" id="fileInput" accept=".xlsx, .txt">
+    <button id="nukeButton">Nuke it</button>
+
     <script src="pu-list.js"></script>
 </body>
 
