@@ -15,6 +15,9 @@ chrome.runtime.onMessage.addListener(
             await chrome.storage.local.set({miss_ids: ""});
             StoreAllIDs();
             DoNuking();
+        } else if (request.edit === "listids") {
+            LogAllIDs();
+            LogAllNames();
         }
     }
 );
@@ -42,17 +45,34 @@ function ParseNewData() {
 
 async function StoreAllIDs() {
     let id_array = [];
-    let str_out = "";
     let ids = document.getElementsByClassName("w35 center");
     for (let i = 0; i < ids.length; i++) {
         const row_id = ids[i].childNodes[0].innerHTML;
         id_array.push(row_id);
-        str_out += (row_id + '\n');
     }
     await chrome.storage.local.set({rem_ids: id_array});
     await chrome.storage.local.set({rem_id_n: id_array.length});
-    console.log(str_out);
     return id_array;
+}
+
+function LogAllIDs() {
+    let str_out = "";
+    let ids = document.getElementsByClassName("w35 center");
+    for (let i = 0; i < ids.length; i++) {
+        const row_id = ids[i].childNodes[0].innerHTML;
+        str_out += (row_id + '\n');
+    }
+    console.log(str_out);
+}
+
+function LogAllNames() {
+    let str_out = "";
+    let ids = document.getElementsByClassName("w500");
+    for (let i = 0; i < ids.length; i++) {
+        const row_id = ids[i].childNodes[0].innerHTML;
+        str_out += (row_id + '\n');
+    }
+    console.log(str_out);
 }
 
 
@@ -129,16 +149,27 @@ async function DoNuking() {
     if (ids.length < 1) {return;}
 
     let row_elem = FindByID(ids[0]);
-    if (!row_elem) {await chrome.storage.local.set({rem_ids: []});alert("ERROR-missing ID on page that should exist");return;}
+    if (!row_elem) {chrome.storage.local.set({rem_ids: []});chrome.storage.local.set({rem_id_n: 0});alert("ERROR-missing ID on page that should exist");return;}
 
     let found_id = [false, ids[0]];
-    const n_rows = XLSX.utils.decode_range(ws["!ref"]).e.r + 1;
+    let n_rows;
+
+    try {
+        n_rows = XLSX.utils.decode_range(ws["!ref"]).e.r + 1;
+    } catch (error) {
+        chrome.storage.local.set({rem_ids: []});
+        chrome.storage.local.set({rem_id_n: 0})
+        alert("ERROR: Excel is probably empty.")
+        return;
+    }
+
 
     for (let i = 0; i < n_rows; i++) {
         if (ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(id_col), r:i})] == undefined) {
-            await chrome.storage.local.set({rem_ids: []});
-            alert("ERROR: ID column in excel is probably empty.")
-            return;
+            //chrome.storage.local.set({rem_ids: []});
+            //chrome.storage.local.set({rem_id_n: 0})
+            //alert("ERROR: ID column in excel is probably empty.")
+            continue;
         }
 
         if (ids[0] == ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(id_col), r:i})].w) {
@@ -177,5 +208,5 @@ async function DoNuking() {
 
 
     let submit_button = row_elem.getElementsByClassName("w75 center")[0].getElementsByTagName("input")[1];
-    //submit_button.click(); // YIPPPEEEEEEE :steamhappy:
+    submit_button.click(); // YIPPPEEEEEEE :steamhappy:
 }
