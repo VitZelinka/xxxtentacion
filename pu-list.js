@@ -13,8 +13,9 @@ nukeButton.onclick = StartNuking;
 let idListButton = document.getElementById("idListButton");
 idListButton.onclick = ListIDs;
 
-
-UpdateData();
+setTimeout(() => {
+    UpdateData();
+}, 200);
 
 
 idEl.addEventListener("blur", () => chrome.storage.local.set({id: idEl.value}));
@@ -44,10 +45,13 @@ function UpdateData() {
 
 async function StartNuking() {
     let fileInput = document.getElementById('fileInput');
-    let data = fileInput.files[0];
-    data = await data.arrayBuffer();
-    let workbook = XLSX.read(data);
-    await chrome.storage.local.set({workbook: workbook});
+    console.log(fileInput.files.length);
+    if (fileInput.files.length > 0) {
+        let data = fileInput.files[0];
+        data = await data.arrayBuffer();
+        let workbook = XLSX.read(data);
+        await chrome.storage.local.set({workbook: workbook});
+    }
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
         chrome.tabs.sendMessage(tabs[0].id, {edit: "startEditExcel"});
     });
