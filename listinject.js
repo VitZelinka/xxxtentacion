@@ -1,20 +1,28 @@
 
 console.log("XDDXDXD YIPPPPEEEEEE");
 
+//UpdateRowElementOnRefresh();
 
-DoTrolling();
-DoNuking();
+window.onload = function() {    
+    UpdateRowElementOnRefresh();
+};
+
+/*
+document.addEventListener('DOMContentLoaded', function() {
+    UpdateRowElementOnRefresh();
+});
+*/
+
 
 chrome.runtime.onMessage.addListener(
     async function(request, sender, sendResponse) {
-        if (request.edit === "startEdit") {
-            console.log("Got message!");
-            ParseNewData();
-            setTimeout(()=>{DoTrolling()}, 25);
-        } else if (request.edit === "startEditExcel") {
+        if (request.edit === "startEditExcel") {
             await chrome.storage.local.set({miss_ids: ""});
-            StoreAllIDs();
-            DoNuking();
+            //StoreAllIDs();
+            //DoNuking();
+            // new part
+            FindAndStoreRowIDs();
+            UpdateRowElementOnRefresh();
         } else if (request.edit === "listids") {
             LogAllIDs();
             LogAllNames();
@@ -23,6 +31,107 @@ chrome.runtime.onMessage.addListener(
 );
 
 
+function GetRowObjectByID(id) {
+    let row_element;
+    let row_elements = document.getElementsByClassName("w35 center");
+    
+    for (let i = 0; i < row_elements.length; i++) {
+        if (parseInt(row_elements[i].childNodes[0].innerHTML) == id) {
+            row_element = row_elements[i].parentElement;
+            break;
+        }
+    }
+
+    return {
+        kod_e: row_element.querySelector("#kodZbozi1"),
+        dost_e: row_element.querySelector("#dostupnost"),
+        cena_e: row_element.querySelector("#prodejnicena"),
+        prio_e: row_element.querySelector("#prioritazbozi"),
+        button_e: row_element.getElementsByClassName("w75 center")[0].getElementsByTagName("input")[1]
+    }
+}
+
+
+function FindAndStoreRowIDs() {
+    let row_ids = [];
+    let ids = document.getElementsByClassName("w35 center");
+    
+    for (let i = 0; i < ids.length; i++) {
+        row_ids.push(parseInt(ids[i].childNodes[0].innerHTML));
+    }
+
+    chrome.storage.local.set({row_ids: row_ids});
+}
+
+
+async function UpdateRowElementOnRefresh() {
+    const opts = (await chrome.storage.sync.get(["excelOptions"])).excelOptions;
+    const wb = (await chrome.storage.local.get(["workbook"])).workbook;
+    const ws = wb.Sheets[opts.sheet];
+    let row_ids = (await chrome.storage.local.get(["row_ids"])).row_ids;
+    let row;
+    // if no rows are left to update, return
+    if (row_ids.length < 1) {return;} 
+
+    // try getting row count from excel, if empty, throw error
+    try {
+        ex_n_rows = XLSX.utils.decode_range(ws["!ref"]).e.r + 1;
+    } catch (error) {
+        chrome.storage.local.set({row_ids: []});
+        alert("ERROR: Excel is probably empty.")
+        return;
+    }
+
+    for (let j = 0; j < row_ids.length; j++) {
+        // prepare row object to be used
+        let row_id = row_ids[0];
+        let found_id = false;
+        let do_save = false;
+        
+        // for every row in excel
+        for (let i = 0; i < ex_n_rows; i++) {
+            // if row in excel is empty, skip it
+            if (ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(opts.id), r:i})] == undefined) {
+                continue;
+            }
+            
+            // check if row id is equal to excel row id
+            if (row_id == ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(opts.id), r:i})].w) {
+                found_id = true;
+                
+                row = GetRowObjectByID(row_id);
+
+                const ex_kod = ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(opts.kod), r:i})];
+                const ex_dost = ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(opts.dost), r:i})];
+                const ex_cena = ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(opts.cena), r:i})];
+                const ex_prio = ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(opts.prio), r:i})];
+
+                if (ex_kod != undefined && ex_kod.w != row.kod_e.value) {row.kod_e.value = ex_kod.w; do_save = true;}
+                if (ex_dost != undefined && ex_dost.w != row.dost_e.value) {row.dost_e.value = ex_dost.w; do_save = true;}
+                if (ex_cena != undefined && ex_cena.w != row.cena_e.value) {row.cena_e.value = ex_cena.w; do_save = true;}
+                if (ex_prio != undefined && ex_prio.w != row.prio_e.value) {row.prio_e.value = ex_prio.w; do_save = true;}
+                
+                break;
+            }
+        }
+    
+        if (!found_id) {
+            // TODO: save to persistent storage, alert all not found ids at the end
+        }
+        
+        row_ids.shift();
+        chrome.storage.local.set({row_ids: row_ids});
+
+        if (do_save) {
+            row.button_e.click();
+            return;
+        }
+    }
+}
+
+
+
+/*
 function FindByID(stored_id) {
     let ids = document.getElementsByClassName("w35 center");
     for (let i = 0; i < ids.length; i++) {
@@ -34,14 +143,6 @@ function FindByID(stored_id) {
     return false;
 }
 
-
-function ParseNewData() {
-    chrome.storage.local.get(["id"], (data) => {chrome.storage.local.set({id_p: data.id.split(" ")})});
-    chrome.storage.local.get(["kod"], (data) => {chrome.storage.local.set({kod_p: data.kod.split(" ")})});
-    chrome.storage.local.get(["dost"], (data) => {chrome.storage.local.set({dost_p: data.dost.split(" ")})});
-    chrome.storage.local.get(["cena"], (data) => {chrome.storage.local.set({cena_p: data.cena.split(" ")})});
-    chrome.storage.local.get(["prio"], (data) => {chrome.storage.local.set({prio_p: data.prio.split(" ")})});
-}
 
 async function StoreAllIDs() {
     let id_array = [];
@@ -73,59 +174,6 @@ function LogAllNames() {
         str_out += (row_id + '\n');
     }
     console.log(str_out);
-}
-
-
-async function DoTrolling() {
-    let id_a = (await chrome.storage.local.get(["id_p"])).id_p;
-    let kod_a = (await chrome.storage.local.get(["kod_p"])).kod_p;
-    let dost_a = (await chrome.storage.local.get(["dost_p"])).dost_p;
-    let cena_a = (await chrome.storage.local.get(["cena_p"])).cena_p;
-    let prio_a = (await chrome.storage.local.get(["prio_p"])).prio_p;
-    
-    if (id_a.length < 1) {return;}
-
-    let row_elem = FindByID(id_a[0]);
-    if (!row_elem) {return;}
-    
-    id_a.splice(0, 1);
-    await chrome.storage.local.set({id_p: id_a});
-
-    kod_a = removeWhitespaceElements(kod_a);
-    if (kod_a.length > 0) {
-        let text_field = row_elem.getElementsByClassName("w90 center")[0].getElementsByTagName("input")[0];
-        text_field.value = kod_a[0];
-        kod_a.splice(0, 1);
-        await chrome.storage.local.set({kod_p: kod_a});
-    }
-
-    dost_a = removeWhitespaceElements(dost_a);
-    if (dost_a.length > 0) {
-        text_field = row_elem.getElementsByClassName("w40 center")[0].getElementsByTagName("input")[0];
-        text_field.value = dost_a[0];
-        dost_a.splice(0, 1);
-        await chrome.storage.local.set({dost_p: dost_a});
-    }
-
-    cena_a = removeWhitespaceElements(cena_a);
-    if (cena_a.length > 0) {
-        text_field = row_elem.getElementsByClassName("w40 center")[1].getElementsByTagName("input")[0];
-        text_field.value = cena_a[0];
-        cena_a.splice(0, 1);
-        await chrome.storage.local.set({cena_p: cena_a});
-    }
-
-    prio_a = removeWhitespaceElements(prio_a);
-    if (prio_a.length > 0) {
-        text_field = row_elem.getElementsByClassName("w75 center")[0].getElementsByTagName("input")[0];
-        text_field.value = prio_a[0];
-        prio_a.splice(0, 1);
-        await chrome.storage.local.set({prio_p: prio_a});
-    }
-
-
-    let submit_button = row_elem.getElementsByClassName("w75 center")[0].getElementsByTagName("input")[1];
-    submit_button.click(); // YIPPPEEEEEEE :steamhappy:
 }
 
 
@@ -208,5 +256,6 @@ async function DoNuking() {
 
 
     let submit_button = row_elem.getElementsByClassName("w75 center")[0].getElementsByTagName("input")[1];
-    submit_button.click(); // YIPPPEEEEEEE :steamhappy:
+    //submit_button.click(); // YIPPPEEEEEEE :steamhappy:
 }
+*/
