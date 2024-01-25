@@ -1,12 +1,13 @@
 
 console.log("XDDXDXD YIPPPPEEEEEE");
 
-//UpdateRowElementOnRefresh();
+UpdateRowElementOnRefresh();
 
+/*
 window.onload = function() {    
     UpdateRowElementOnRefresh();
 };
-
+*/
 /*
 document.addEventListener('DOMContentLoaded', function() {
     UpdateRowElementOnRefresh();
@@ -73,6 +74,7 @@ async function UpdateRowElementOnRefresh() {
     // if no rows are left to update, return
     if (row_ids.length < 1) {return;} 
 
+    let ex_n_rows;
     // try getting row count from excel, if empty, throw error
     try {
         ex_n_rows = XLSX.utils.decode_range(ws["!ref"]).e.r + 1;
@@ -85,7 +87,6 @@ async function UpdateRowElementOnRefresh() {
     for (let j = 0; j < row_ids.length; j++) {
         // prepare row object to be used
         let row_id = row_ids[0];
-        let found_id = false;
         let do_save = false;
         
         // for every row in excel
@@ -97,7 +98,6 @@ async function UpdateRowElementOnRefresh() {
             
             // check if row id is equal to excel row id
             if (row_id == ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(opts.id), r:i})].w) {
-                found_id = true;
                 
                 row = GetRowObjectByID(row_id);
 
@@ -108,19 +108,15 @@ async function UpdateRowElementOnRefresh() {
 
                 if (ex_kod != undefined && ex_kod.w != row.kod_e.value) {row.kod_e.value = ex_kod.w; do_save = true;}
                 if (ex_dost != undefined && ex_dost.w != row.dost_e.value) {row.dost_e.value = ex_dost.w; do_save = true;}
-                if (ex_cena != undefined && ex_cena.w != row.cena_e.value) {row.cena_e.value = ex_cena.w; do_save = true;}
+                if (ex_cena != undefined && parseInt(ex_cena.w) != parseInt(row.cena_e.value)) {row.cena_e.value = ex_cena.w; do_save = true;}
                 if (ex_prio != undefined && ex_prio.w != row.prio_e.value) {row.prio_e.value = ex_prio.w; do_save = true;}
                 
                 break;
             }
         }
-    
-        if (!found_id) {
-            // TODO: save to persistent storage, alert all not found ids at the end
-        }
         
         row_ids.shift();
-        chrome.storage.local.set({row_ids: row_ids});
+        await chrome.storage.local.set({row_ids: row_ids});
 
         if (do_save) {
             row.button_e.click();
