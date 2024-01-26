@@ -127,7 +127,11 @@ chrome.runtime.onMessage.addListener(
 );
 
 chrome.tabs.onUpdated.addListener(() => OnTabChange());
-chrome.tabs.onUpdated.addListener((tabId) => InjectContentScript(tabId));
+chrome.tabs.onUpdated.addListener((tabId, info) => {
+    if (info.status == "complete") {
+        InjectContentScript(tabId);
+    }    
+});
 
 chrome.tabs.onRemoved.addListener((tabId) => {if (tabId === dataGrabTabID) dataGrabGate = true;});
 chrome.tabs.onRemoved.addListener((tabId) => {if (tabId === dataEnterTabID) dataEnterGate = true;});

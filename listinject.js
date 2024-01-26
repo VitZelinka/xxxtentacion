@@ -1,7 +1,11 @@
 
 console.log("XDDXDXD YIPPPPEEEEEE");
 
-UpdateRowElementOnRefresh();
+setTimeout(() => {
+    UpdateRowElementOnRefresh();  
+}, 100);
+
+//UpdateRowElementOnRefresh();
 
 /*
 window.onload = function() {    
@@ -21,16 +25,10 @@ chrome.runtime.onMessage.addListener(
             FindAndStoreRowIDs();
             UpdateRowElementOnRefresh();
         } else if (request.edit === "listids") {
-            Log();
+            UpdateRowElementOnRefresh();
         }
     }
 );
-
-
-function Log() {
-    let row_elements = document.getElementsByClassName("w35 center");
-    console.log("Number of row elements: ", row_elements.length);
-}
 
 
 function GetRowObjectByID(id) {
@@ -49,7 +47,7 @@ function GetRowObjectByID(id) {
         dost_e: row_element.querySelector("#dostupnost"),
         cena_e: row_element.querySelector("#prodejnicena"),
         prio_e: row_element.querySelector("#prioritazbozi"),
-        button_e: row_element.querySelector('input[name="ok"]')
+        button_e: row_element.getElementsByClassName("w75 center")[0].getElementsByTagName("input")[1]
     }
 }
 
@@ -63,16 +61,6 @@ function FindAndStoreRowIDs() {
     }
 
     chrome.storage.local.set({row_ids: row_ids});
-}
-
-function GetRowIDs() {
-    let row_ids = [];
-    let ids = document.getElementsByClassName("w35 center");
-    for (let i = 0; i < ids.length; i++) {
-        row_ids.push(parseInt(ids[i].childNodes[0].innerHTML));
-    }
-    
-    return row_ids;
 }
 
 
@@ -95,50 +83,42 @@ async function UpdateRowElementOnRefresh() {
         return;
     }
 
-    for (let k = 0; k < row_ids.length; k++) {
+    for (let j = 0; j < row_ids.length; j++) {
+        // prepare row object to be used
+        let row_id = row_ids[0];
         let do_save = false;
-        let row2save = GetRowObjectByID(row_ids[0]);
-
-        let all_row_ids = GetRowIDs();
-        for (let j = 0; j < all_row_ids.length; j++) {
-            // prepare row object to be used
-            let row_id = all_row_ids[j];
-            // for every row in excel
-            for (let i = 0; i < ex_n_rows; i++) {
-                // if row in excel is empty, skip it
-                if (ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(opts.id), r:i})] == undefined) {
-                    continue;
-                }
-                
-                // check if row id is equal to excel row id
-                if (row_id == ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(opts.id), r:i})].w) {
-                    
-                    row = GetRowObjectByID(row_id);
-    
-                    const ex_kod = ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(opts.kod), r:i})];
-                    const ex_dost = ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(opts.dost), r:i})];
-                    const ex_cena = ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(opts.cena), r:i})];
-                    const ex_prio = ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(opts.prio), r:i})];
-    
-                    if (ex_kod != undefined && ex_kod.w != row.kod_e.value) {row.kod_e.value = ex_kod.w; do_save = true;}
-                    if (ex_dost != undefined && ex_dost.w != row.dost_e.value) {row.dost_e.value = ex_dost.w; do_save = true;}
-                    if (ex_cena != undefined && parseInt(ex_cena.w) != parseInt(row.cena_e.value)) {row.cena_e.value = ex_cena.w; do_save = true;}
-                    if (ex_prio != undefined && ex_prio.w != row.prio_e.value) {row.prio_e.value = ex_prio.w; do_save = true;}
-                    
-                    break;
-                }
-            }    
-        }
-
-        row_ids.shift();
-
-        console.log(row_ids);
-        await chrome.storage.local.set({row_ids: row_ids});
         
-        console.log(row2save);
+        // for every row in excel
+        for (let i = 0; i < ex_n_rows; i++) {
+            // if row in excel is empty, skip it
+            if (ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(opts.id), r:i})] == undefined) {
+                continue;
+            }
+            
+            // check if row id is equal to excel row id
+            if (row_id == ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(opts.id), r:i})].w) {
+                
+                row = GetRowObjectByID(row_id);
+
+                const ex_kod = ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(opts.kod), r:i})];
+                const ex_dost = ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(opts.dost), r:i})];
+                const ex_cena = ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(opts.cena), r:i})];
+                const ex_prio = ws[XLSX.utils.encode_cell({c:XLSX.utils.decode_col(opts.prio), r:i})];
+
+                if (ex_kod != undefined && ex_kod.w != row.kod_e.value) {row.kod_e.value = ex_kod.w; do_save = true;}
+                if (ex_dost != undefined && ex_dost.w != row.dost_e.value) {row.dost_e.value = ex_dost.w; do_save = true;}
+                if (ex_cena != undefined && parseInt(ex_cena.w) != parseInt(row.cena_e.value)) {row.cena_e.value = ex_cena.w; do_save = true;}
+                if (ex_prio != undefined && ex_prio.w != row.prio_e.value) {row.prio_e.value = ex_prio.w; do_save = true;}
+                
+                break;
+            }
+        }
+        
+        row_ids.shift();
+        await chrome.storage.local.set({row_ids: row_ids});
 
         if (do_save) {
-            row2save.button_e.click();
+            //row.button_e.click();
             return;
         }
     }
