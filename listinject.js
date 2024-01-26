@@ -118,7 +118,7 @@ async function UpdateRowElementOnRefresh() {
         await chrome.storage.local.set({row_ids: row_ids});
 
         if (do_save) {
-            //row.button_e.click();
+            row.button_e.click();
             return;
         }
     }
