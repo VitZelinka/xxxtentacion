@@ -71,7 +71,12 @@ async function UpdateRowElementOnRefresh() {
     let row_ids = (await chrome.storage.local.get(["row_ids"])).row_ids;
     let row;
     // if no rows are left to update, return
-    if (row_ids.length < 1) {return;} 
+    try {
+        if (row_ids.length < 1) {return;} 
+    } catch (error) {
+        chrome.storage.local.set({row_ids: []});
+        return;
+    }
 
     let ex_n_rows;
     // try getting row count from excel, if empty, throw error
@@ -118,7 +123,7 @@ async function UpdateRowElementOnRefresh() {
         await chrome.storage.local.set({row_ids: row_ids});
 
         if (do_save) {
-            row.button_e.click();
+            //row.button_e.click();
             return;
         }
     }

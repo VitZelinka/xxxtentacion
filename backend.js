@@ -64,8 +64,8 @@ function OnTabChange(tab) {
     });
 }
 
-function InjectContentScript(tabId) {
-    chrome.storage.local.get(["activeSite"], (data) => {
+async function InjectContentScript(tabId) {
+    await chrome.storage.local.get(["activeSite"], (data) => {
         switch (data.activeSite) {
             case "UpdateGoods":
                 if (dataGrabGate == true) {
@@ -92,20 +92,15 @@ function InjectContentScript(tabId) {
                 }
                 break;
             case "ListGoods":
-                if (listInjectGate == true) {
-                    listInjectGate = false;
-                    listInjectTabID = tabId;
-                    chrome.scripting.executeScript({
-                        target: { tabId: tabId },
-                        files: ['cdn.sheetjs.com_xlsx-0.20.0_package_dist_xlsx.full.min.js']
-                    });
-                    chrome.scripting.executeScript({
-                        target: { tabId: tabId },
-                        files: ['listinject.js']
-                    });
-                } else {
-                    listInjectGate = true;
-                }
+                listInjectTabID = tabId;
+                chrome.scripting.executeScript({
+                    target: { tabId: tabId },
+                    files: ['cdn.sheetjs.com_xlsx-0.20.0_package_dist_xlsx.full.min.js']
+                });
+                chrome.scripting.executeScript({
+                    target: { tabId: tabId },
+                    files: ['listinject.js']
+                });
                 break;
             default:
                 break;
@@ -128,7 +123,9 @@ chrome.runtime.onMessage.addListener(
 
 chrome.tabs.onUpdated.addListener(() => OnTabChange());
 chrome.tabs.onUpdated.addListener((tabId, info) => {
+    console.log(info);
     if (info.status == "complete") {
+        console.log("injectet XD");
         InjectContentScript(tabId);
     }    
 });
